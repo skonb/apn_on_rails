@@ -8,7 +8,14 @@ class APN::App < APN::Base
   has_many :unsent_group_notifications, :through => :groups
 
   def cert
-    (RAILS_ENV == 'production' ? apn_prod_cert : apn_dev_cert)
+    res = nil
+    if self.mdm_cert_path
+      res = File.read self.mdm_cert_path
+    end
+    unless res
+      res = (Rails.env == 'production' ? apn_prod_cert : apn_dev_cert)
+    end
+    res
   end
 
   # Opens a connection to the Apple APN server and attempts to batch deliver
@@ -38,25 +45,40 @@ class APN::App < APN::Base
   end
 
   def self.send_notifications_for_cert(the_cert, app_id)
-    # unless self.unsent_notifications.nil? || self.unsent_notifications.empty?
-      if (app_id == nil)
-        conditions = "app_id is null"
-      else
-        conditions = ["app_id = ?", app_id]
+    app = nil
+    if (app_id == nil)
+      conditions = "app_id is null"
+    else
+      conditions = ["app_id = ?", app_id]
+      app = APN::App.find app_id rescue nil
+    end
+    begin
+      options = {:cert => the_cert}
+      if app
+        options[:host] = app.gateway_url if app.gateway_url
+        options[:port] = app.gateway_port if app.gateway_port
+        options[:passphrase] = app.cert_passphrase if app.cert_passphrase
       end
-      begin
-        APN::Connection.open_for_delivery({:cert => the_cert}) do |conn, sock|
-          APN::Device.find_each(:conditions => conditions) do |dev|
-            dev.unsent_notifications.each do |noty|
-              conn.write(noty.message_for_sending)
-              noty.sent_at = Time.now
-              noty.save
-            end
+      APN::Connection.open_for_delivery(options) do |conn, sock|
+        APN::Device.find_each(:conditions => conditions) do |dev|
+          dev.unsent_notifications.each do |noty|
+          #            msg, ide = noty.message_for_sending
+            msg = noty.message_for_sending
+            conn.write(msg)
+#            conn.write(data)
+            noty.sent_at = Time.now
+            noty.save
           end
         end
-      rescue Exception => e
-        log_connection_exception(e)
+        # STDERR.puts "fin"
+        # while res = conn.read(6)
+        #   STDERR.puts res
+        # end
+        # STDERR.puts "fin2"
       end
+    rescue Exception => e
+      log_connection_exception(e)
+    end
     # end
   end
 

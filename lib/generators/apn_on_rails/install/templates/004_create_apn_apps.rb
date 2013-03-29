@@ -3,10 +3,9 @@ class CreateApnApps < ActiveRecord::Migration # :nodoc:
     create_table :apn_apps do |t|
       t.text :apn_dev_cert
       t.text :apn_prod_cert
-
+      t.string :mdm_cert_path
       t.timestamps
     end
-
     add_column :apn_devices, :app_id, :integer
     
   end
