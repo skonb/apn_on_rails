@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency('configatron')
   s.add_runtime_dependency('activerecord')
   s.add_runtime_dependency('actionpack')
+  s.add_runtime_dependency('protected_attributes')
 
   s.add_development_dependency('rake')
   s.add_development_dependency('autotest')
