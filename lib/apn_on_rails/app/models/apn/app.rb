@@ -7,8 +7,6 @@ class APN::App < APN::Base
   has_many :group_notifications, :through => :groups
   has_many :unsent_group_notifications, :through => :groups
   
-  attr_accessible :devices
-
   def cert
     res = nil
     if self.mdm_cert_path

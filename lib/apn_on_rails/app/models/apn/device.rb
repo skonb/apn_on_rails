@@ -23,7 +23,6 @@ class APN::Device < APN::Base
   # device is marked as potentially disconnected from your
   # application by Apple.
   attr_accessor :feedback_at
-  attr_accessible :token, :app_id
   
   # Stores the token (Apple's device ID) of the iPhone (device).
   # 
