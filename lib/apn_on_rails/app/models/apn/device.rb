@@ -22,7 +22,7 @@ class APN::Device < APN::Base
   # The <tt>feedback_at</tt> accessor is set when the 
   # device is marked as potentially disconnected from your
   # application by Apple.
-  attr_accessor :feedback_at
+  attr_accessor :feedback_at, :token, :app_id
   
   # Stores the token (Apple's device ID) of the iPhone (device).
   # 
