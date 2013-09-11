@@ -6,6 +6,8 @@ class APN::App < APN::Base
   has_many :unsent_notifications, :through => :devices
   has_many :group_notifications, :through => :groups
   has_many :unsent_group_notifications, :through => :groups
+  
+  attr_accessible :devices
 
   def cert
     res = nil
